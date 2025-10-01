@@ -1,4 +1,3 @@
-<img width="339" height="52" alt="image" src="https://github.com/user-attachments/assets/8654106c-5b35-42e2-a2dd-9940b3ecf700" /># TipTrack
 TipTrack is a MATLAB based toolkit that extracts center lines and tip locations of fluorescent slender structures and computes length time traces with high precision
 
 This package is developed by Sabyasachi Sutradhar. This MATLAB based package can precisely calculate the length and tip locations of fluorescently labeled filamentous (slender) structures. 

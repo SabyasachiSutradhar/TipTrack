@@ -1,0 +1,59 @@
+function [Center,sigma]=Fit_2DGaussian(I,thetaguess,xin,yin)
+im=double(I);
+
+[X,Y]=meshgrid(1:size(im,2),1:size(im,1));
+max_X=max(X(:));
+max_Y=max(Y(:));
+Z=double(im);
+Z(isnan(Z))=0;
+Z=Z-min(Z(:));
+Z=Z./max(Z(:));
+[xData, yData, zData] = prepareSurfaceData(X,Y, Z);
+
+% Set up fittype and options.
+ft = fittype( 'I0*exp(-(-(x-xc).*sin(theta)+(y-yc).*cos(theta)).^2./(2.0*sigmav^2))+d',...
+    'independent', {'x', 'y'}, 'dependent', 'z' );
+opts = fitoptions( 'Method', 'NonlinearLeastSquares' );
+opts.Display = 'Off';
+opts.Lower = [0 0 0 0 1 1];
+opts.Upper = [1 0.25 10 2*pi  max_X max_Y];
+opts.StartPoint = [0.75  0.01 3.0 thetaguess  max_X/2 max_Y/2];
+% Fit model to data.
+[fitresult, gof] = fit( [xData, yData], zData, ft, opts );
+
+if max(yin(:))-min(yin(:))>0
+xx=yin(:);
+yy=tan(fitresult.theta-pi)*(xx-fitresult.xc)+fitresult.yc;
+else
+yy=xin(:);
+xx=(yy-fitresult.yc)/tan(fitresult.theta-pi)+fitresult.xc;
+end
+P=[xx,yy];
+
+
+P(P(:,2)<0,:)=[];
+P(P(:,2)>size(I,1)+1,:)=[];
+P(P(:,1)<0,:)=[];
+P(P(:,1)>size(I,2)+1,:)=[];
+
+
+ L=round(sqrt((xx(1)-xx(end))^2+(yy(1)-yy(end))^2));
+% D=fit_linear(xx,yy,N);
+% 
+%  D(D(:,2)>size(I,1),:)=[];
+%  D(D(:,2)<1,:)=[];
+
+
+
+Center=[P(:,1),P(:,2)];
+
+sigma=fitresult.sigmav;
+%%%%%%%%%%%%%%%%%%% 
+% Zout=fitresult(X,Y);
+% figure
+% imshow(Zout)
+% hold on
+% plot(yin,xin,'og')
+% % plot(xx,yy,'.r')
+% plot(P(:,1),P(:,2),'*b')
+end

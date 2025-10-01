@@ -1,0 +1,19 @@
+function BW=make_binary_wavelet(I)
+I=imadjust(I);
+I=wiener2(I,[5 5]);
+wname = 'bior3.5';
+level = 10;
+[C,S] = wavedec2(I,level,wname);
+thr = wthrmngr('dw2ddenoLVL','penalhi',C,S,3);
+sorh = 's';
+[XDEN,~,~] = wdencmp('lvd',C,S,wname,level,thr,sorh);
+XDEN=XDEN./max(XDEN(:));
+th=graythresh(XDEN);
+BW=imbinarize(XDEN,0.75*th);
+BW=bwareaopen(BW,20);
+BW=bwmorph(BW,'close');
+BW=bwmorph(BW,'bridge');
+BW=bwmorph(BW,'fill');
+BW=bwmorph(BW,'majority');
+BW=imfill(BW,'holes');
+end
